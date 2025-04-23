@@ -2,13 +2,6 @@
 
 # Build stage
 FROM eclipse-temurin:21-jdk-noble AS build
-FROM node
-
-# Specify Railway-injected build-time variables
-ARG RAILWAY_SERVICE_ID
-ARG RAILWAY_ENVIRONMENT
-
-RUN echo $RAILWAY_SERVICE_ID
 
 # Copy source (excluding entrypoint)
 COPY --exclude=entrypoint.sh . /home/reposilite-build
