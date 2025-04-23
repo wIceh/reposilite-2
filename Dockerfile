@@ -30,7 +30,6 @@ FROM eclipse-temurin:21-jre-noble AS run
 
 # Setup runtime environment
 RUN mkdir -p /app/data && mkdir -p /var/log/reposilite
-VOLUME /app/data
 RUN <<EOF
     mkdir -p /app/data
     mkdir -p /var/log/reposilite
