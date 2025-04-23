@@ -7,6 +7,9 @@ FROM eclipse-temurin:21-jdk-noble AS build
 COPY --exclude=entrypoint.sh . /home/reposilite-build
 WORKDIR /home/reposilite-build
 
+# Ensure the Gradle wrapper is executable
+RUN chmod +x gradlew
+
 # Use a cache mount for Gradle dependencies (prefixed with Railway service key)
 # Format: --mount=type=cache,id=s/${RAILWAY_SERVICE_NAME}-/root/.gradle,target=/root/.gradle
 RUN --mount=type=cache,id=s/4b65819e-0980-4a27-806f-53978fe90d6f-/root/.gradle,target=/root/.gradle <<EOF
