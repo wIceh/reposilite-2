@@ -5,8 +5,11 @@ FROM eclipse-temurin:21-jdk-noble AS build
 COPY --exclude=entrypoint.sh . /home/reposilite-build
 WORKDIR /home/reposilite-build
 
-# Use a cache mount for Gradle dependencies
-RUN --mount=type=cache,id=gradle-cache,target=/root/.gradle <<EOF
+# Railway service ID for cache prefix
+ARG RAILWAY_SERVICE_ID
+
+# Use a cache mount for Gradle dependencies (prefixed with Railway cache key)
+RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.gradle,target=/root/.gradle <<EOF
   export GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork"
   ./gradlew :reposilite-backend:shadowJar --no-daemon --stacktrace
 EOF
