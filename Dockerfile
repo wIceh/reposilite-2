@@ -5,8 +5,8 @@ FROM eclipse-temurin:21-jdk-noble AS build
 COPY --exclude=entrypoint.sh . /home/reposilite-build
 WORKDIR /home/reposilite-build
 
-# The below line will show an Error in some IDE's, It is valid Dockerfile.
-RUN --mount=type=cache,target=/root/.gradle <<EOF
+# Use a cache mount for Gradle dependencies
+RUN --mount=type=cache,id=gradle-cache,target=/root/.gradle <<EOF
   export GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork"
   ./gradlew :reposilite-backend:shadowJar --no-daemon --stacktrace
 EOF
@@ -28,24 +28,22 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 # Run stage
 FROM eclipse-temurin:21-jre-noble AS run
 
-# Setup runtime environment
-RUN mkdir -p /app/data && mkdir -p /var/log/reposilite
-RUN <<EOF
-    mkdir -p /app/data
-    mkdir -p /var/log/reposilite
-EOF
+# Setup runtime directories
+RUN mkdir -p /app/data /var/log/reposilite
 WORKDIR /app
 
 # Import application code
 COPY --chmod=755 entrypoint.sh entrypoint.sh
 COPY --from=build /home/reposilite-build/reposilite-backend/build/libs/reposilite-3*.jar reposilite.jar
 
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=15s \
     --retries=3 CMD [ "sh", "-c", "URL=$(cat /app/data/.local/reposilite.address); echo -n \"curl $URL... \"; \
-    (\
+    ( \
         curl -sf $URL > /dev/null\
-    ) && echo OK || (\
+    ) && echo OK || ( \
         echo Fail && exit 2\
     )"]
+
 ENTRYPOINT ["/app/entrypoint.sh"]
 EXPOSE 8080
