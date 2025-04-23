@@ -8,7 +8,7 @@ COPY --exclude=entrypoint.sh . /home/reposilite-build
 WORKDIR /home/reposilite-build
 
 # Use a cache mount for Gradle dependencies (prefixed with Railway service key)
-# Format: --mount=type=cache,id=s/<service-name>-<target-path>,target=<target-path>
+# Format: --mount=type=cache,id=s/${RAILWAY_SERVICE_NAME}-/root/.gradle,target=/root/.gradle
 RUN --mount=type=cache,id=s/4b65819e-0980-4a27-806f-53978fe90d6f-/root/.gradle,target=/root/.gradle <<EOF
   export GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork"
   ./gradlew :reposilite-backend:shadowJar --no-daemon --stacktrace
@@ -37,7 +37,8 @@ WORKDIR /app
 
 # Import application code
 COPY --chmod=755 entrypoint.sh entrypoint.sh
-COPY --from=build /home/reposilite-build/reposilite-backend/build/libs/reposilite-3*.jar reposilite.jar
+# Copy the built JAR (using wildcard to match shadowJar output)
+COPY --from=build /home/reposilite-build/reposilite-backend/build/libs/*.jar reposilite.jar
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=15s \
