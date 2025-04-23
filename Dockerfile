@@ -2,10 +2,13 @@
 
 # Build stage
 FROM eclipse-temurin:21-jdk-noble AS build
+FROM node
 
 # Specify Railway-injected build-time variables
-ARG RAILWAY_SERVICE_NAME
+ARG RAILWAY_SERVICE_ID
 ARG RAILWAY_ENVIRONMENT
+
+RUN echo $RAILWAY_SERVICE_ID
 
 # Copy source (excluding entrypoint)
 COPY --exclude=entrypoint.sh . /home/reposilite-build
@@ -13,7 +16,7 @@ WORKDIR /home/reposilite-build
 
 # Use a cache mount for Gradle dependencies (prefixed with Railway service key)
 # Format: --mount=type=cache,id=s/<service-name>-<target-path>,target=<target-path>
-RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_NAME}-/root/.gradle,target=/root/.gradle <<EOF
+RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.gradle,target=/root/.gradle <<EOF
   export GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork"
   ./gradlew :reposilite-backend:shadowJar --no-daemon --stacktrace
 EOF
