@@ -16,7 +16,7 @@ WORKDIR /home/reposilite-build
 
 # Use a cache mount for Gradle dependencies (prefixed with Railway service key)
 # Format: --mount=type=cache,id=s/<service-name>-<target-path>,target=<target-path>
-RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.gradle,target=/root/.gradle <<EOF
+RUN --mount=type=cache,id=s/4b65819e-0980-4a27-806f-53978fe90d6f-/root/.gradle,target=/root/.gradle <<EOF
   export GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork"
   ./gradlew :reposilite-backend:shadowJar --no-daemon --stacktrace
 EOF
